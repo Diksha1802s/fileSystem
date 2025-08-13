@@ -78,6 +78,38 @@ app.get("/listing",(req,res)=>{
         console.log("error",error)    
     }
 })
+app.post("/updateFile", (req, res) => {
+    const fileName = req.body.fileName;
+    const description = req.body.description;
+    const directoryPath = "C:/Users/Hp/OneDrive/Desktop/API setups/fileSystem";
+
+    if (!fileName || !description) {
+        return res.status(400).send("fileName and description are required");
+    }
+
+    const filePath = path.join(directoryPath, fileName);
+
+    // Check if it's a .txt file
+    if (path.extname(fileName).toLowerCase() !== ".txt") {
+        return res.status(400).send("Only .txt files can be updated");
+    }
+
+    // Check if file exists
+    if (!fs.existsSync(filePath)) {
+        return res.status(404).send("File not found");
+    }
+
+    // Overwrite the file with new content
+    fs.writeFile(filePath, description, (err) => {
+        if (err) {
+            console.error("Error writing file:", err);
+            return res.status(500).send("Error updating file");
+        }
+        console.log(`File ${fileName} updated successfully`);
+        res.send("File updated successfully");
+    });
+});
+
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
